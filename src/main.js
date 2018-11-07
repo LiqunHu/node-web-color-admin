@@ -31,6 +31,8 @@ import VueFullCalendar from 'vue-full-calendar'
 import VueCountdown from '@xkeshi/vue-countdown'
 import VueColorpicker from 'vue-pop-colorpicker'
 import mavonEditor from 'mavon-editor'
+import Loading from './lib/loading/src/loading.js'
+import * as common from './lib/common.js'
 
 // plugins css
 import 'bootstrap/dist/css/bootstrap.css'
@@ -47,6 +49,7 @@ import 'ionicons/dist/css/ionicons.min.css'
 import 'vue-good-table/dist/vue-good-table.css'
 import 'fullcalendar/dist/fullcalendar.css'
 import 'mavon-editor/dist/css/index.css'
+import './lib/loading/src/loading.css'
 
 // color admin css
 import './assets/css/default/style.min.css'
@@ -103,10 +106,13 @@ let axiosConfig = {
 
 const instance = axios.create(axiosConfig)
 // Add a request interceptor
+let load = new Loading()
 instance.interceptors.request.use(
   function(config) {
     // Do something before request is sent
     $('.btn').addClass('disabled')
+    load.init()
+    load.start()
     let token = common.getStoreData('token')
     if (typeof token === 'string') {
       config.headers['Authorization'] = token
@@ -124,11 +130,13 @@ instance.interceptors.response.use(
   function(response) {
     // Do something with response data
     $('.btn').removeClass('disabled')
+    load.stop()
     return response
   },
   function(error) {
     // Do something with response error
     $('.btn').removeClass('disabled')
+    load.stop()
     return Promise.reject(error)
   }
 )

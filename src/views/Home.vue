@@ -15,3 +15,12 @@
 		</panel>
 	</div>
 </template>
+<script>
+import PageOptions from '../config/PageOptions.vue'
+
+export default {
+  created() {
+    PageOptions.pageEmpty = false
+  }
+}
+</script>

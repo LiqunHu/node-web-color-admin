@@ -14,6 +14,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "jquery": "^3.3.1",
+    "bootstrap3-dialog": "^1.35.4",
+    "store": "^2.0.12",
+    "crypto-js": "^3.1.6",
     "@agametov/vueditor": "^0.4.1",
     "@xkeshi/vue-countdown": "^1.0.1",
     "bootstrap": "^4.1.3",
