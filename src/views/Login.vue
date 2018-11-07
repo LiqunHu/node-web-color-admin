@@ -15,7 +15,7 @@
 		<!-- begin login-content -->
 		<div class="login-content">
 			<form v-on:submit="checkForm" method="POST" class="margin-bottom-0">
-				<!-- <div class="alert alert-danger" v-bind:class="{ 'hidden': isA }">{{ errorMessage }}</div> -->
+				<div class="alert alert-danger" v-show="isA">{{ errorMessage }}</div>
 				<div class="form-group m-b-20">
 					<input v-model="username" type="text" class="form-control form-control-lg inverse-mode" placeholder="User Name" required />
 				</div>
@@ -49,7 +49,7 @@ export default {
       username: '',
       password: '',
       errorMessage: '',
-      isA: true
+      isA: false
     }
   },
   created() {
@@ -84,13 +84,13 @@ export default {
             _self.$router.push({ path: '/dashboard/home' })
           } else {
             _self.errorMessage = '系统错误'
-            _self.isA = false
+            _self.isA = true
             common.clearStoreData()
           }
         })
         .catch(function(error) {
           _self.errorMessage = '用户名或者密码错误'
-          _self.isA = false
+          _self.isA = true
           common.clearStoreData()
         })
     }
