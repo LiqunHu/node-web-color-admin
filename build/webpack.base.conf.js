@@ -31,11 +31,7 @@ module.exports = {
     }
   },
   plugins: [
-    new VueLoaderPlugin(),
-    new webpack.ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery'
-    })
+    new VueLoaderPlugin()
   ],
   module: {
     rules: [

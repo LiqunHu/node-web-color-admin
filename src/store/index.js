@@ -1,15 +1,17 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import error from './modules/error'
-import getters from './getters'
+
+import access from './modules/access'
 
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
   modules: {
-    error
-  },
-  getters
+    access: {
+      namespaced: true,
+      ...access
+    }
+  }
 })
 
 export default store
