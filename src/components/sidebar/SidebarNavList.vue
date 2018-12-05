@@ -1,6 +1,6 @@
 <template>
 	<!-- menu with submenu -->
-	<li v-if="menu.sub_menu" class="has-sub" v-bind:class="{ 'active': subIsActive(menu.menu_path) }">
+	<li v-if="menu.sub_menu" class="has-sub" v-bind:class="{ 'active': subIsActive(menu.sub_menu) }">
 		<a href="#" v-on:click.prevent.stop="expand()">
 			<span v-if="menu.badge" class="badge pull-right">{{ menu.badge }}</span>
 			<b v-else class="caret"></b>
@@ -71,7 +71,7 @@ export default {
     subIsActive(path) {
       const paths = Array.isArray(path) ? path : [path]
       return paths.some(path => {
-        return this.$route.path.indexOf(path) === 0
+        return this.$route.path.indexOf(path.menu_path) === 0
       })
     }
   }
