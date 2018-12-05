@@ -93,6 +93,54 @@ instance.interceptors.response.use(
   }
 )
 Vue.prototype.$http = instance
+Vue.prototype.$commonact = {
+  info: message => {
+    vueInstance.$Modal.info({
+      title: '提示',
+      content: '<p>' + message + '</p>'
+    })
+  },
+  success: message => {
+    vueInstance.$Modal.success({
+      title: '成功',
+      content: '<p>' + message + '</p>'
+    })
+  },
+  warning: message => {
+    vueInstance.$Modal.warning({
+      title: '警告',
+      content: '<p>' + message + '</p>'
+    })
+  },
+  error: message => {
+    vueInstance.$Modal.error({
+      title: '错误',
+      content: '<p>' + message + '</p>'
+    })
+  },
+  confirm: (message, cb) => {
+    vueInstance.$Modal.confirm({
+      title: '确认',
+      content: '<p>' + message + '</p>',
+      onOk: cb
+    })
+  },
+  fault: error => {
+    let response = error.response
+    if (response) {
+      if (response.status > 699 && response.status < 800) {
+        vueInstance.$Modal.error({
+          title: '错误',
+          content: '<p>' + response.data.msg + '</p>'
+        })
+      } else if (response.status === 404) {
+        vueInstance.$router.push({
+          path: '/error404'
+        })
+      }
+    }
+  }
+}
 
 vueInstance = new Vue({
   render: h => h(App),
