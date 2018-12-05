@@ -22,7 +22,7 @@
         </div>
       </template>
 
-      <Tree :data="data1" ref="tree"></Tree>
+      <Tree :data="treedata" ref="tree"></Tree>
     </panel>
     <Modal v-model="foldermodal" title="目录">
       <p>Content of dialog</p>
@@ -33,58 +33,56 @@
 </template>
 <script>
 import PageOptions from '../../../config/PageOptions.vue'
-const common = require('@/lib/common')
 const apiUrl = '/v1/api/common/system/SystemApiControl/'
 
 export default {
+  name: 'SystemApiControl',
   data() {
     return {
       foldermodal: false,
-      data1: [
-        {
-          title: 'parent 1',
-          expand: true,
-          children: [
-            {
-              title: 'parent 1-1',
-              expand: true,
-              children: [
-                {
-                  title: 'leaf 1-1-1'
-                },
-                {
-                  title: 'leaf 1-1-2'
-                }
-              ]
-            },
-            {
-              title: 'parent 1-2',
-              expand: true,
-              children: [
-                {
-                  title: 'leaf 1-2-1'
-                },
-                {
-                  title: 'leaf 1-2-1'
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      pagePara: {},
+      treedata: [],
+      actNode: {}
     }
   },
   created() {
     PageOptions.pageEmpty = false
   },
+  mounted: function() {
+    const initPage = async () => {
+      try {
+        let response = await this.$http.post(apiUrl + 'init', {})
+        let retData = response.data.info
+        this.pagePara = retData
+        this.getTreeData()
+        console.log('init success')
+      } catch (error) {
+        this.$commonact.fault(error)
+      }
+    }
+
+    initPage()
+  },
   methods: {
+    getTreeData: async function(event) {
+      try {
+        let response = await this.$http.post(apiUrl + 'search', {})
+        this.treedata = response.data.info
+      } catch (error) {
+        this.$commonact.fault(error)
+      }
+    },
     addFolderModel: function(event) {
       let selnodes = this.$refs.tree.getSelectedNodes()
       if (selnodes.length > 0) {
+        if (selnodes[0].node_type === '01') {
+          return this.$commonact.warning('菜单下不允许新增内容')
+        }
+        this.actNode = selnodes[0]
+        this.foldermodal = true
       } else {
-        return this.$commonact.Warning('请选择一个目录')
+        return this.$commonact.warning('请选择一个目录')
       }
-      console.log(selnodes)
     }
   }
 }
