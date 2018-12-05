@@ -137,6 +137,17 @@ Vue.prototype.$commonact = {
         vueInstance.$router.push({
           path: '/error404'
         })
+      } else if (response.status === 401) {
+        if (response.data.errno === -2) {
+          vueInstance.$router.push({ path: '/error', query: { httpcode: response.status, error: response.data.errno, message: '从其他地方登录' } })
+        } else {
+          vueInstance.$router.push({
+            path: '/error',
+            query: { httpcode: response.status, error: response.data.errno, message: '未经授权：访问由于凭据无效被拒绝' }
+          })
+        }
+      } else {
+        vueInstance.$router.push({ path: '/error', query: { httpcode: response.status, error: response.data.errno, message: response.data.msg } })
       }
     }
   }
