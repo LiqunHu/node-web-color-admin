@@ -10,7 +10,7 @@
 			<i v-if="menu.highlight" class="fa fa-paper-plane text-theme m-l-5"></i>
 			<span v-if="menu.label" class="label label-theme m-l-5">{{ menu.label }}</span>
 		</a>
-		<ul class="sub-menu" v-bind:class="{ 'd-block': this.stat == 'expand', 'd-none': this.stat == 'collapse' }" v-bind:style="{ marginTop: (pageOptions.pageSidebarMinified) ? - (scrollTop + 40) + 'px' : '' }">
+		<ul class="sub-menu" v-bind:class="{ 'd-block': this.stat == 'expand', 'd-none': this.stat == 'collapse' }" v-bind:style="{ marginTop: (pageOptions.pageSidebarMinified) ? - 40 + 'px' : '' }">
 			<template v-for="submenu in menu.sub_menu">
 				<sidebar-nav-list v-bind:menu="submenu" v-bind:key="submenu.menu_name" ref="sidebarNavList" v-on:collapse-other="handleCollapseOther(submenu)"></sidebar-nav-list>
 			</template>
@@ -36,7 +36,7 @@ import PageOptions from '../../config/PageOptions.vue'
 
 export default {
   name: 'SidebarNavList',
-  props: ['menu', 'scrollTop'],
+  props: ['menu'],
   components: {
     SidebarNavList
   },

@@ -3,7 +3,7 @@
   <ul class="nav" v-if="userInfo.menulist">
     <li class="nav-header">Navigation</li>
     <template v-for="menu in userInfo.menulist">
-      <sidebar-nav-list ref="sidebarNavList" v-bind:menu="menu" v-bind:scrollTop="scrollTop" v-bind:key="menu.menu_name" v-bind:status="menu.status" v-on:collapse-other="handleCollapseOther(menu)"></sidebar-nav-list>
+      <sidebar-nav-list ref="sidebarNavList" v-bind:menu="menu" v-bind:key="menu.menu_name" v-bind:status="menu.status" v-on:collapse-other="handleCollapseOther(menu)"></sidebar-nav-list>
     </template>
     <!-- begin sidebar minify button -->
     <li>
@@ -23,7 +23,6 @@ import PageOptions from '../../config/PageOptions.vue'
 
 export default {
   name: 'SidebarNav',
-  props: ['scrollTop'],
   components: {
     SidebarNavList
   },

@@ -11,6 +11,7 @@ import routes from './config/PageRoutes'
 import VueRouter from 'vue-router'
 import VueInsProgressBar from 'vue-ins-progress-bar'
 import iView from 'iview'
+import vuescroll from 'vuescroll'
 import VuePanel from './lib/panel/'
 import * as common from './lib/common.js'
 
@@ -21,6 +22,7 @@ import 'flag-icon-css/css/flag-icon.min.css'
 import 'bootstrap-social/bootstrap-social.css'
 import 'ionicons/dist/css/ionicons.min.css'
 import 'iview/dist/styles/iview.css'
+import 'vuescroll/dist/vuescroll.css'
 
 // color admin css
 import './assets/css/default/style.min.css'
@@ -32,6 +34,7 @@ import App from './App'
 // use mavon-editor
 Vue.use(VueX)
 Vue.use(VueRouter)
+Vue.use(vuescroll)
 Vue.use(iView)
 Vue.use(VuePanel)
 Vue.use(VueInsProgressBar, {
