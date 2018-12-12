@@ -1,0 +1,55 @@
+[{
+  "id": 1,
+  "iconSource": "fa fa-home"
+}, {
+  "id": 2,
+  "iconSource": "fa fa-user"
+}, {
+  "id": 3,
+  "iconSource": "fa fa-users"
+}, {
+  "id": 4,
+  "iconSource": "fa fa-cog"
+}, {
+  "id": 5,
+  "iconSource": "fa fa-cogs"
+}, {
+  "id": 6,
+  "iconSource": "fa fa-briefcase"
+}, {
+  "id": 7,
+  "iconSource": "fa fa-truck"
+}, {
+  "id": 8,
+  "iconSource": "fa fa-bar-chart"
+}, {
+  "id": 9,
+  "iconSource": "fa fa-shopping-cart"
+}, {
+  "id": 10,
+  "iconSource": "fa fa-bell"
+}, {
+  "id": 11,
+  "iconSource": "fa fa-tasks"
+}, {
+  "id": 12,
+  "iconSource": "fa fa-calendar"
+}, {
+  "id": 13,
+  "iconSource": "fa fa-tasks"
+}, {
+  "id": 14,
+  "iconSource": "fa fa-book"
+}, {
+  "id": 15,
+  "iconSource": "fa fa-envelope"
+}, {
+  "id": 16,
+  "iconSource": "fa fa-file"
+}, {
+  "id": 17,
+  "iconSource": "fa fa-university"
+}, {
+  "id": 18,
+  "iconSource": "fa fa-object-group"
+}]
