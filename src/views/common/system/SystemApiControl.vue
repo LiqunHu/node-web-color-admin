@@ -17,15 +17,15 @@
       <template slot="beforeBody">
         <div class="panel-toolbar">
           <button type="button" class="btn btn-info" @click="addFolderModal">增加目录</button>
-          <button type="button" class="btn btn-info">增加菜单</button>
-          <button type="button" class="btn btn-info">编辑</button>
+          <button type="button" class="btn btn-info" @click="addMenuModal">增加菜单</button>
+          <button type="button" class="btn btn-info" @click="editNode">编辑</button>
         </div>
       </template>
 
       <Tree :data="treedata" ref="tree"></Tree>
     </panel>
     <Modal v-model="modal.folderModal" title="目录">
-      <Form :model="workPara" :label-width="80" :rules="formRule.ruleFoldermodal" ref="formFolder">
+      <Form :model="workPara" :label-width="80" :rules="formRule.ruleFolderModal" ref="formFolder">
         <FormItem label="目录名称" prop="systemmenu_name">
           <Input placeholder="目录名称" v-model="workPara.systemmenu_name"/>
         </FormItem>
@@ -35,7 +35,7 @@
       </Form>
       <div slot="footer">
         <Button type="text" size="large" @click="modal.folderModal=false">取消</Button>
-        <Button type="primary" size="large" @click="submitFolder(1)">确定</Button>
+        <Button type="primary" size="large" @click="submitFolder()">确定</Button>
       </div>
     </Modal>
     <Modal v-model="modal.iconModal" title="图标选择" @on-cancel="iconCancel">
@@ -43,16 +43,26 @@
     </Modal>
     <Modal v-model="modal.menuModal" title="菜单">
       <Form :model="workPara" :label-width="80" :rules="formRule.ruleMenuModal" ref="formMenu">
-        <FormItem label="目录名称" prop="systemmenu_name">
+        <FormItem label="功能名称" prop="systemmenu_name">
           <Input placeholder="目录名称" v-model="workPara.systemmenu_name"/>
         </FormItem>
-        <FormItem label="图标" prop="systemmenu_icon">
-          <Input search enter-button placeholder="图标..." v-model="workPara.systemmenu_icon" @on-search="showIconModal"/>
+        <FormItem label="API路径" prop="api_path">
+          <Input placeholder="API路径" v-model="workPara.api_path"/>
+        </FormItem>
+        <FormItem label="权限校验" prop="auth_flag">
+          <Select v-model="workPara.auth_flag">
+            <Option v-for="item in pagePara.tfInfo" :value="item.id" :key="item.id">{{ item.text }}</Option>
+          </Select>
+        </FormItem>
+        <FormItem label="是否显示" prop="show_flag">
+          <Select v-model="workPara.show_flag">
+            <Option v-for="item in pagePara.tfInfo" :value="item.id" :key="item.id">{{ item.text }}</Option>
+          </Select>
         </FormItem>
       </Form>
       <div slot="footer">
         <Button type="text" size="large" @click="modal.menuModal=false">取消</Button>
-        <Button type="primary" size="large" @click="submitMenu(1)">确定</Button>
+        <Button type="primary" size="large" @click="submitMenu()">确定</Button>
       </div>
     </Modal>
   </div>
@@ -97,15 +107,22 @@ export default {
         }
       },
       formRule: {
-        ruleFoldermodal: {
+        ruleFolderModal: {
           systemmenu_name: [{ required: true, trigger: 'change' }],
           systemmenu_icon: [{ required: true, trigger: 'change' }]
+        },
+        ruleMenuModal: {
+          systemmenu_name: [{ required: true, trigger: 'change' }],
+          api_path: [{ required: true, trigger: 'change' }],
+          auth_flag: [{ required: true, trigger: 'change' }],
+          show_flag: [{ required: true, trigger: 'change' }]
         }
       },
       pagePara: {},
       treedata: [],
       actNode: {},
-      workPara: {}
+      workPara: {},
+      action: ''
     }
   },
   created() {
@@ -137,12 +154,14 @@ export default {
     },
     addFolderModal: function(event) {
       this.workPara = {}
-      let selnodes = this.$refs.tree.getSelectedNodes()
-      if (selnodes.length > 0) {
-        if (selnodes[0].node_type === '01') {
+      this.action = 'add'
+      this.$refs.formFolder.resetFields()
+      let selNodes = this.$refs.tree.getSelectedNodes()
+      if (selNodes.length > 0) {
+        if (selNodes[0].node_type === '01') {
           return this.$commonact.warning('菜单下不允许新增内容')
         }
-        this.actNode = selnodes[0]
+        this.actNode = selNodes[0]
         this.modal.folderModal = true
       } else {
         return this.$commonact.warning('请选择一个目录')
@@ -157,27 +176,92 @@ export default {
     iconCancel: function() {
       this.workPara.systemmenu_icon = ''
     },
-    submitFolder: function(action) {
+    submitFolder: function() {
       this.$refs.formFolder.validate(async valid => {
         if (valid) {
-          this.workPara.parent_id = this.actNode.systemmenu_id
-          await this.$http.post(apiUrl + 'addFolder', this.workPara)
-          this.getTreeData()
-          this.modal.folderModal = false
+          try {
+            if (this.action === 'add') {
+              this.workPara.parent_id = this.actNode.systemmenu_id
+              await this.$http.post(apiUrl + 'addFolder', this.workPara)
+              this.$Message.success('增加目录成功')
+            } else if (this.action === 'modify') {
+              await this.$http.post(apiUrl + 'modifyFolder', this.workPara)
+              this.$Message.success('修改目录成功')
+            }
+
+            this.getTreeData()
+            this.modal.folderModal = false
+          } catch (error) {
+            this.$commonact.fault(error)
+          }
+        }
+      })
+    },
+    addMenuModal: function() {
+      this.workPara = {}
+      this.action = 'add'
+      this.$refs.formMenu.resetFields()
+      let selNodes = this.$refs.tree.getSelectedNodes()
+      if (selNodes.length > 0) {
+        if (selNodes[0].node_type === '01') {
+          return this.$commonact.warning('菜单下不允许新增内容')
+        }
+        this.actNode = selNodes[0]
+        this.modal.menuModal = true
+      } else {
+        return this.$commonact.warning('请选择一个目录')
+      }
+    },
+    submitMenu: function() {
+      this.$refs.formMenu.validate(async valid => {
+        if (valid) {
+          try {
+            if (this.action === 'add') {
+              this.workPara.parent_id = this.actNode.systemmenu_id
+              await this.$http.post(apiUrl + 'addMenu', this.workPara)
+              this.$Message.success('增加菜单成功')
+            } else if (this.action === 'modify') {
+              await this.$http.post(apiUrl + 'modifyMenu', this.workPara)
+              this.$Message.success('修改菜单成功')
+            }
+            this.getTreeData()
+            this.modal.menuModal = false
+          } catch (error) {
+            this.$commonact.fault(error)
+          }
         } else {
           this.$commonact.error('增加目录失败')
         }
       })
     },
-    submitMenu: function(action) {
-      this.$refs.formMenu.validate(async valid => {
-        if (valid) {
-          this.getTreeData()
-          this.modal.menuModal = false
+    editNode: async function() {
+      try {
+        let selNodes = this.$refs.tree.getSelectedNodes()
+        if (selNodes.length > 0) {
+          this.actNode = selNodes[0]
         } else {
-          this.$commonact.error('增加目录失败')
+          return this.$commonact.warning('请选择一个节点')
         }
-      })
+        this.action = 'modify'
+        if (selNodes[0].node_type === '00') {
+          this.workPara = {}
+          this.workPara.systemmenu_id = selNodes[0].systemmenu_id
+          this.workPara.systemmenu_name = selNodes[0].systemmenu_name
+          this.workPara.systemmenu_icon = selNodes[0].systemmenu_icon
+          this.$refs.formFolder.resetFields()
+          this.modal.folderModal = true
+        } else if (selNodes[0].node_type === '01') {
+          this.workPara = {}
+          this.workPara.systemmenu_id = selNodes[0].systemmenu_id
+          this.workPara.systemmenu_name = selNodes[0].systemmenu_name
+          this.workPara.auth_flag = selNodes[0].auth_flag
+          this.workPara.show_flag = selNodes[0].show_flag
+          this.$refs.formMenu.resetFields()
+          this.modal.menuModal = true
+        }
+      } catch (error) {
+        this.$commonact.fault(error)
+      }
     }
   }
 }

@@ -29,6 +29,7 @@ import './assets/css/default/style.min.css'
 import './assets/css/default/style-responsive.min.css'
 import './assets/css/default/theme/default.css'
 import './assets/css/style.css'
+import './assets/css/ui.css'
 
 import App from './App'
 // use mavon-editor
@@ -88,7 +89,7 @@ instance.interceptors.response.use(
   },
   function(error) {
     // Do something with response error
-    vueInstance.$Spin.hide()
+    // vueInstance.$Spin.hide()
     return Promise.reject(error)
   }
 )

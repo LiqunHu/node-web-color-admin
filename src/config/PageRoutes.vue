@@ -5,7 +5,8 @@ const routes = [
   { path: '/error', component: resolve => require(['@/components/error'], resolve) },
   { path: '/error404', component: resolve => require(['@/components/error404'], resolve) },
   { path: '/dashboard/home', component: resolve => require(['@/views/Home'], resolve) },
-  { path: '/common/system/SystemApiControl', component: resolve => require(['@/views/common/system/SystemApiControl'], resolve) }
+  { path: '/common/system/SystemApiControl', component: resolve => require(['@/views/common/system/SystemApiControl'], resolve) },
+  { path: '/common/system/GroupControl', component: resolve => require(['@/views/common/system/GroupControl'], resolve) }
 ]
 
 export default routes
