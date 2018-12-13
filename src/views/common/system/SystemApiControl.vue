@@ -245,18 +245,18 @@ export default {
         this.action = 'modify'
         if (selNodes[0].node_type === '00') {
           this.workPara = {}
+          this.$refs.formFolder.resetFields()
           this.workPara.systemmenu_id = selNodes[0].systemmenu_id
           this.workPara.systemmenu_name = selNodes[0].systemmenu_name
           this.workPara.systemmenu_icon = selNodes[0].systemmenu_icon
-          this.$refs.formFolder.resetFields()
           this.modal.folderModal = true
         } else if (selNodes[0].node_type === '01') {
           this.workPara = {}
+          this.$refs.formMenu.resetFields()
           this.workPara.systemmenu_id = selNodes[0].systemmenu_id
           this.workPara.systemmenu_name = selNodes[0].systemmenu_name
           this.workPara.auth_flag = selNodes[0].auth_flag
           this.workPara.show_flag = selNodes[0].show_flag
-          this.$refs.formMenu.resetFields()
           this.modal.menuModal = true
         }
       } catch (error) {

@@ -89,7 +89,7 @@ instance.interceptors.response.use(
   },
   function(error) {
     // Do something with response error
-    // vueInstance.$Spin.hide()
+    vueInstance.$Spin.hide()
     return Promise.reject(error)
   }
 )

@@ -17,8 +17,8 @@
       <template slot="beforeBody">
         <div class="panel-toolbar">
           <button type="button" class="btn btn-info" @click="groupModal">增加组</button>
-          <button type="button" class="btn btn-info">增加权限组</button>
-          <button type="button" class="btn btn-info">编辑</button>
+          <button type="button" class="btn btn-info" @click="permissionModal">增加权限组</button>
+          <button type="button" class="btn btn-info" @click="editNode">编辑</button>
         </div>
       </template>
       <Tree :data="treedata" ref="tree"></Tree>
@@ -34,6 +34,20 @@
         <Button type="primary" size="large" @click="submitGroup()">确定</Button>
       </div>
     </Modal>
+    <Modal v-model="modal.permissionModal" title="角色">
+      <Form :model="workPara" :label-width="80" :rules="formRule.rulePermissionModal" ref="formPermission">
+        <FormItem label="角色名称" prop="usergroup_name">
+          <Input placeholder="角色名称" v-model="workPara.usergroup_name"/>
+        </FormItem>
+        <FormItem label="权限" prop="menus">
+          <Tree show-checkbox multiple :data="pagePara.menuInfo" ref="permissionTree"></Tree>
+        </FormItem>
+      </Form>
+      <div slot="footer">
+        <Button type="text" size="large" @click="modal.groupModal=false">取消</Button>
+        <Button type="primary" size="large" @click="submitPermission()">确定</Button>
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -45,10 +59,14 @@ export default {
   data() {
     return {
       modal: {
-        groupModal: false
+        groupModal: false,
+        permissionModal: false
       },
       formRule: {
         ruleGroupModal: {
+          usergroup_name: [{ required: true, trigger: 'change' }]
+        },
+        rulePermissionModal: {
           usergroup_name: [{ required: true, trigger: 'change' }]
         }
       },
@@ -89,12 +107,12 @@ export default {
       let selNodes = this.$refs.tree.getSelectedNodes()
       if (selNodes.length > 0) {
         if (selNodes[0].node_type === '01') {
-          return this.$commonact.warning('角色下不允许新增')
+          return this.$Message.warning('角色下不允许新增')
         }
 
         this.actNode = selNodes[0]
       } else {
-        return this.$commonact.warning('请选择一个节点')
+        return this.$Message.warning('请选择一个节点')
       }
       this.workPara = {}
       this.action = 'add'
@@ -111,7 +129,7 @@ export default {
               await this.$http.post(apiUrl + 'add', this.workPara)
               this.$Message.success('增加组成功')
             } else if (this.action === 'modify') {
-              await this.$http.post(apiUrl + 'modifyFolder', this.workPara)
+              await this.$http.post(apiUrl + 'modify', this.workPara)
               this.$Message.success('修改组成功')
             }
 
@@ -122,6 +140,89 @@ export default {
           }
         }
       })
+    },
+    permissionModal: function() {
+      let selNodes = this.$refs.tree.getSelectedNodes()
+      if (selNodes.length > 0) {
+        if (selNodes[0].node_type === '01') {
+          return this.$Message.warning('职位下不允许新增')
+        }
+        this.actNode = selNodes[0]
+      } else {
+        return this.$Message.warning('请选择一个节点')
+      }
+      this.action = 'add'
+      this.workPara = {}
+      this.$refs.permissionTree.rebuildTree()
+      this.$refs.formPermission.resetFields()
+      this.modal.permissionModal = true
+    },
+    submitPermission: function() {
+      this.$refs.formPermission.validate(async valid => {
+        if (valid) {
+          try {
+            let nodes = this.$refs.permissionTree.getCheckedNodes()
+            this.workPara.menus = []
+            for (let n of nodes) {
+              this.workPara.menus.push({ systemmenu_id: n.systemmenu_id })
+            }
+            if (this.action === 'add') {
+              this.workPara.parent_id = this.actNode.usergroup_id
+              this.workPara.node_type = '01'
+              await this.$http.post(apiUrl + 'add', this.workPara)
+              this.$Message.success('增加角色成功')
+            } else if (this.action === 'modify') {
+              await this.$http.post(apiUrl + 'modify', this.workPara)
+              this.$Message.success('修改角色成功')
+            }
+
+            this.getTreeData()
+            this.modal.permissionModal = false
+          } catch (error) {
+            this.$commonact.fault(error)
+          }
+        }
+      })
+    },
+    editNode: async function() {
+      const getCheckData = async nodeObj => {
+        let response = await this.$http.post(apiUrl + 'getcheck', {
+          usergroup_id: nodeObj[0].usergroup_id
+        })
+        let retData = response.data.info
+        this.pagePara.menuInfo.forEach(value => {
+          value.checked = false
+          retData.groupMenu.forEach(systemmenuId => {
+            if (systemmenuId === value.systemmenu_id) {
+              value.checked = true
+            }
+          })
+        })
+      }
+      try {
+        let selNodes = this.$refs.tree.getSelectedNodes()
+        if (selNodes.length > 0) {
+          this.actNode = selNodes[0]
+        } else {
+          return this.$Message.warning('请选择一个节点')
+        }
+
+        this.action = 'modify'
+        console.log(333)
+        this.workPara.usergroup_id = selNodes[0].usergroup_id
+        if (selNodes[0].node_type === '00') {
+          this.$refs.formGroup.resetFields()
+          this.workPara.usergroup_name = selNodes[0].name
+          this.modal.groupModal = true
+        } else if (selNodes[0].node_type === '01') {
+          this.$refs.formPermission.resetFields()
+          this.workPara.usergroup_name = selNodes[0].name
+          await getCheckData(selNodes)
+          this.modal.permissionModal = true
+        }
+      } catch (error) {
+        this.$commonact.fault(error)
+      }
     }
   }
 }
