@@ -42,7 +42,7 @@
         <Tree show-checkbox multiple :data="tree.permissionTree" ref="permissionTree"></Tree>
       </Form>
       <div slot="footer">
-        <Button type="text" size="large" @click="modal.groupModal=false">取消</Button>
+        <Button type="text" size="large" @click="modal.permissionModal=false">取消</Button>
         <Button type="primary" size="large" @click="submitPermission()">确定</Button>
       </div>
     </Modal>
