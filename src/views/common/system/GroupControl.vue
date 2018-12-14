@@ -21,7 +21,7 @@
           <button type="button" class="btn btn-info" @click="editNode">编辑</button>
         </div>
       </template>
-      <Tree :data="treedata" ref="tree"></Tree>
+      <Tree :data="tree.groupTree" ref="tree"></Tree>
     </panel>
     <Modal v-model="modal.groupModal" title="组">
       <Form :model="workPara" :label-width="80" :rules="formRule.ruleGroupModal" ref="formGroup">
@@ -39,9 +39,7 @@
         <FormItem label="角色名称" prop="usergroup_name">
           <Input placeholder="角色名称" v-model="workPara.usergroup_name"/>
         </FormItem>
-        <FormItem label="权限" prop="menus">
-          <Tree show-checkbox multiple :data="pagePara.menuInfo" ref="permissionTree"></Tree>
-        </FormItem>
+        <Tree show-checkbox multiple :data="tree.permissionTree" ref="permissionTree"></Tree>
       </Form>
       <div slot="footer">
         <Button type="text" size="large" @click="modal.groupModal=false">取消</Button>
@@ -73,7 +71,10 @@ export default {
       workPara: {},
       pagePara: {},
       actNode: {},
-      treedata: [],
+      tree: {
+        groupTree: [],
+        permissionTree: []
+      },
       action: ''
     }
   },
@@ -98,7 +99,7 @@ export default {
     getTreeData: async function() {
       try {
         let response = await this.$http.post(apiUrl + 'search', {})
-        this.treedata = response.data.info
+        this.tree.groupTree = response.data.info
       } catch (error) {
         this.$commonact.fault(error)
       }
@@ -153,6 +154,8 @@ export default {
       }
       this.action = 'add'
       this.workPara = {}
+      this.tree.permissionTree = []
+      this.tree.permissionTree = JSON.parse(JSON.stringify(this.pagePara.menuInfo))
       this.$refs.permissionTree.rebuildTree()
       this.$refs.formPermission.resetFields()
       this.modal.permissionModal = true
@@ -161,7 +164,7 @@ export default {
       this.$refs.formPermission.validate(async valid => {
         if (valid) {
           try {
-            let nodes = this.$refs.permissionTree.getCheckedNodes()
+            let nodes = this.$refs.permissionTree.getCheckedAndIndeterminateNodes()
             this.workPara.menus = []
             for (let n of nodes) {
               this.workPara.menus.push({ systemmenu_id: n.systemmenu_id })
@@ -190,14 +193,62 @@ export default {
           usergroup_id: nodeObj[0].usergroup_id
         })
         let retData = response.data.info
-        this.pagePara.menuInfo.forEach(value => {
-          value.checked = false
-          retData.groupMenu.forEach(systemmenuId => {
-            if (systemmenuId === value.systemmenu_id) {
-              value.checked = true
+        // this.tree.permissionTree = [
+        //   {
+        //     title: 'parent 1',
+        //     expand: true,
+        //     children: [
+        //       {
+        //         title: 'parent 1-1',
+        //         expand: true,
+        //         children: [
+        //           {
+        //             title: 'leaf 1-1-1',
+        //             disabled: true
+        //           },
+        //           {
+        //             title: 'leaf 1-1-2'
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         title: 'parent 1-2',
+        //         expand: true,
+        //         children: [
+        //           {
+        //             title: 'leaf 1-2-1',
+        //             checked: true
+        //           },
+        //           {
+        //             title: 'leaf 1-2-1'
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   }
+        // ]
+        this.tree.permissionTree = []
+        let tempTree = JSON.parse(JSON.stringify(this.pagePara.menuInfo))
+
+        const treeTraverse = nodeArray => {
+          nodeArray.forEach(value => {
+            retData.groupMenu.forEach(systemmenuId => {
+              if (systemmenuId === value.systemmenu_id) {
+                if (!value.expand) {
+                  value.checked = true
+                }
+              }
+            })
+            if (value.expand) {
+              treeTraverse(value.children)
             }
           })
-        })
+        }
+
+        treeTraverse(tempTree)
+        console.log(tempTree)
+        this.tree.permissionTree = JSON.parse(JSON.stringify(tempTree))
+        this.$refs.permissionTree.rebuildTree()
       }
       try {
         let selNodes = this.$refs.tree.getSelectedNodes()
@@ -208,7 +259,6 @@ export default {
         }
 
         this.action = 'modify'
-        console.log(333)
         this.workPara.usergroup_id = selNodes[0].usergroup_id
         if (selNodes[0].node_type === '00') {
           this.$refs.formGroup.resetFields()
