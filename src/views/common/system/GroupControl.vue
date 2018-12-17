@@ -85,8 +85,7 @@ export default {
     const initPage = async () => {
       try {
         let response = await this.$http.post(apiUrl + 'init', {})
-        let retData = response.data.info
-        this.pagePara = retData
+        this.pagePara = JSON.parse(JSON.stringify(response.data.info))
         this.getTreeData()
       } catch (error) {
         this.$commonact.fault(error)
