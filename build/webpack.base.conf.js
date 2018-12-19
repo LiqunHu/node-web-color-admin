@@ -18,10 +18,7 @@ module.exports = {
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
-    publicPath:
-      process.env.NODE_ENV === 'production'
-        ? config.build.assetsPublicPath
-        : config.dev.assetsPublicPath
+    publicPath: process.env.NODE_ENV === 'production' ? config.build.assetsPublicPath : config.dev.assetsPublicPath
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
@@ -30,9 +27,7 @@ module.exports = {
       '@': resolve('src')
     }
   },
-  plugins: [
-    new VueLoaderPlugin()
-  ],
+  plugins: [new VueLoaderPlugin()],
   module: {
     rules: [
       ...(config.dev.useEslint
@@ -57,7 +52,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: [resolve('src'), resolve('test')]
+        include: [resolve('src'), resolve('test'), resolve('/node_modules/_vue-ins-progress-bar@1.0.0@vue-ins-progress-bar')]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,

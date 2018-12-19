@@ -20,7 +20,7 @@
             <div class="input-group m-r-10">
               <input type="text" placeholder="搜索用户名、姓名、电话" v-model="table.userTable.search_text" class="form-control">
               <div class="input-group-append">
-                <button type="button" class="btn btn-info">
+                <button type="button" class="btn btn-info" @click="getUserData(1)">
                   <i class="fa fa-search"></i>
                 </button>
               </div>
@@ -157,13 +157,13 @@ export default {
     }
 
     initPage()
-    this.getUserData(0)
+    this.getUserData(1)
   },
   methods: {
     getUserData: async function(index) {
       try {
         if (index) {
-          this.table.userTable.offset = index * this.table.userTable.limit
+          this.table.userTable.offset = (index - 1) * this.table.userTable.limit
         }
 
         let response = await this.$http.post(apiUrl + 'search', {

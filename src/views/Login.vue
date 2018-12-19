@@ -84,7 +84,6 @@ export default {
             // common.clearStoreData()
             // common.setStoreData('token', token)
             // common.setStoreData('userinfo', userinfo)
-            console.log(userinfo)
             _self.login({ userInfo: userinfo }).then(() => {
               _self.$router.push({ path: '/dashboard/home' })
             })
@@ -94,7 +93,7 @@ export default {
             _self.logout()
           }
         })
-        .catch(function(error) {
+        .catch(function() {
           _self.errorMessage = '用户名或者密码错误'
           _self.isA = true
           _self.logout()

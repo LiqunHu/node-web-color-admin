@@ -21,7 +21,7 @@
           <button type="button" class="btn btn-info" @click="editNode">编辑</button>
         </div>
       </template>
-      <Tree :data="tree.groupTree" ref="tree"></Tree>
+      <Tree :data="tree.groupTree" ref="groupTree" :render="renderGroupTree"></Tree>
     </panel>
     <Modal v-model="modal.groupModal" title="组">
       <Form :model="workPara" :label-width="80" :rules="formRule.ruleGroupModal" ref="formGroup">
@@ -39,7 +39,7 @@
         <FormItem label="角色名称" prop="usergroup_name">
           <Input placeholder="角色名称" v-model="workPara.usergroup_name"/>
         </FormItem>
-        <Tree show-checkbox multiple :data="tree.permissionTree" ref="permissionTree"></Tree>
+        <Tree show-checkbox multiple :data="tree.permissionTree" ref="permissionTree" :render="renderPermissionTree"></Tree>
       </Form>
       <div slot="footer">
         <Button type="text" size="large" @click="modal.permissionModal=false">取消</Button>
@@ -49,7 +49,9 @@
   </div>
 </template>
 <script>
+import _ from 'lodash'
 import PageOptions from '../../../config/PageOptions.vue'
+const common = require('@/lib/common')
 const apiUrl = '/v1/api/common/system/GroupControl/'
 
 export default {
@@ -95,6 +97,58 @@ export default {
     initPage()
   },
   methods: {
+    renderGroupTree: function(h, { root, node, data }) {
+      return common.treeIconRender(h, { root, node, data }, this, this.$refs.groupTree, 'ios-browsers', 'ios-people')
+    },
+    renderPermissionTree: (h, { root, node, data }) => {
+      if (node.node.node_type === '00') {
+        return h(
+          'span',
+          {
+            style: {
+              display: 'inline-block',
+              width: '100%'
+            }
+          },
+          [
+            h('span', [
+              h('Icon', {
+                props: {
+                  type: 'ios-folder-open'
+                },
+                style: {
+                  marginRight: '8px'
+                }
+              }),
+              h('span', data.title)
+            ])
+          ]
+        )
+      } else if (node.node.node_type === '01') {
+        return h(
+          'span',
+          {
+            style: {
+              display: 'inline-block',
+              width: '100%'
+            }
+          },
+          [
+            h('span', [
+              h('Icon', {
+                props: {
+                  type: 'ios-cog'
+                },
+                style: {
+                  marginRight: '8px'
+                }
+              }),
+              h('span', data.title)
+            ])
+          ]
+        )
+      }
+    },
     getTreeData: async function() {
       try {
         let response = await this.$http.post(apiUrl + 'search', {})
@@ -104,15 +158,12 @@ export default {
       }
     },
     groupModal: function() {
-      let selNodes = this.$refs.tree.getSelectedNodes()
-      if (selNodes.length > 0) {
-        if (selNodes[0].node_type === '01') {
+      if (_.isEmpty(this.actNode)) {
+        return this.$Message.warning('请选择一个节点')
+      } else {
+        if (this.actNode.node_type === '01') {
           return this.$Message.warning('角色下不允许新增')
         }
-
-        this.actNode = selNodes[0]
-      } else {
-        return this.$Message.warning('请选择一个节点')
       }
       this.workPara = {}
       this.action = 'add'
@@ -142,14 +193,12 @@ export default {
       })
     },
     permissionModal: function() {
-      let selNodes = this.$refs.tree.getSelectedNodes()
-      if (selNodes.length > 0) {
-        if (selNodes[0].node_type === '01') {
+      if (_.isEmpty(this.actNode)) {
+        return this.$Message.warning('请选择一个节点')
+      } else {
+        if (this.actNode.node_type === '01') {
           return this.$Message.warning('职位下不允许新增')
         }
-        this.actNode = selNodes[0]
-      } else {
-        return this.$Message.warning('请选择一个节点')
       }
       this.action = 'add'
       this.workPara = {}
@@ -189,43 +238,9 @@ export default {
     editNode: async function() {
       const getCheckData = async nodeObj => {
         let response = await this.$http.post(apiUrl + 'getcheck', {
-          usergroup_id: nodeObj[0].usergroup_id
+          usergroup_id: nodeObj.usergroup_id
         })
         let retData = response.data.info
-        // this.tree.permissionTree = [
-        //   {
-        //     title: 'parent 1',
-        //     expand: true,
-        //     children: [
-        //       {
-        //         title: 'parent 1-1',
-        //         expand: true,
-        //         children: [
-        //           {
-        //             title: 'leaf 1-1-1',
-        //             disabled: true
-        //           },
-        //           {
-        //             title: 'leaf 1-1-2'
-        //           }
-        //         ]
-        //       },
-        //       {
-        //         title: 'parent 1-2',
-        //         expand: true,
-        //         children: [
-        //           {
-        //             title: 'leaf 1-2-1',
-        //             checked: true
-        //           },
-        //           {
-        //             title: 'leaf 1-2-1'
-        //           }
-        //         ]
-        //       }
-        //     ]
-        //   }
-        // ]
         this.tree.permissionTree = []
         let tempTree = JSON.parse(JSON.stringify(this.pagePara.menuInfo))
 
@@ -245,28 +260,24 @@ export default {
         }
 
         treeTraverse(tempTree)
-        console.log(tempTree)
         this.tree.permissionTree = JSON.parse(JSON.stringify(tempTree))
         this.$refs.permissionTree.rebuildTree()
       }
       try {
-        let selNodes = this.$refs.tree.getSelectedNodes()
-        if (selNodes.length > 0) {
-          this.actNode = selNodes[0]
-        } else {
+        if (_.isEmpty(this.actNode)) {
           return this.$Message.warning('请选择一个节点')
         }
 
         this.action = 'modify'
-        this.workPara.usergroup_id = selNodes[0].usergroup_id
-        if (selNodes[0].node_type === '00') {
+        this.workPara.usergroup_id = this.actNode.usergroup_id
+        if (this.actNode.node_type === '00') {
           this.$refs.formGroup.resetFields()
-          this.workPara.usergroup_name = selNodes[0].name
+          this.workPara.usergroup_name = this.actNode.name
           this.modal.groupModal = true
-        } else if (selNodes[0].node_type === '01') {
+        } else if (this.actNode.node_type === '01') {
           this.$refs.formPermission.resetFields()
-          this.workPara.usergroup_name = selNodes[0].name
-          await getCheckData(selNodes)
+          this.workPara.usergroup_name = this.actNode.name
+          await getCheckData(this.actNode)
           this.modal.permissionModal = true
         }
       } catch (error) {

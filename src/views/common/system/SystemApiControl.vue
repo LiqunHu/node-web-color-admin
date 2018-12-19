@@ -22,7 +22,7 @@
         </div>
       </template>
 
-      <Tree :data="treedata" ref="tree"></Tree>
+      <Tree :data="tree.apiTree" ref="apiTree" :render="renderTreedata"></Tree>
     </panel>
     <Modal v-model="modal.folderModal" title="目录">
       <Form :model="workPara" :label-width="80" :rules="formRule.ruleFolderModal" ref="formFolder">
@@ -68,7 +68,9 @@
   </div>
 </template>
 <script>
+import _ from 'lodash'
 import PageOptions from '../../../config/PageOptions.vue'
+const common = require('@/lib/common')
 const apiUrl = '/v1/api/common/system/SystemApiControl/'
 const icons = require('@/config/icon.json')
 
@@ -119,7 +121,9 @@ export default {
         }
       },
       pagePara: {},
-      treedata: [],
+      tree: {
+        apiTree: []
+      },
       actNode: {},
       workPara: {},
       action: ''
@@ -134,7 +138,6 @@ export default {
         let response = await this.$http.post(apiUrl + 'init', {})
         this.pagePara = JSON.parse(JSON.stringify(response.data.info))
         this.getTreeData()
-        console.log('init success')
       } catch (error) {
         this.$commonact.fault(error)
       }
@@ -143,33 +146,34 @@ export default {
     initPage()
   },
   methods: {
-    getTreeData: async function(event) {
+    renderTreedata: function(h, { root, node, data }) {
+      return common.treeIconRender(h, { root, node, data }, this, this.$refs.apiTree, 'ios-folder-open', 'ios-cog')
+    },
+    getTreeData: async function() {
       try {
         let response = await this.$http.post(apiUrl + 'search', {})
-        this.treedata = response.data.info
+        this.tree.apiTree = response.data.info
       } catch (error) {
         this.$commonact.fault(error)
       }
     },
-    addFolderModal: function(event) {
+    addFolderModal: function() {
       this.workPara = {}
       this.action = 'add'
       this.$refs.formFolder.resetFields()
-      let selNodes = this.$refs.tree.getSelectedNodes()
-      if (selNodes.length > 0) {
-        if (selNodes[0].node_type === '01') {
+      if (_.isEmpty(this.actNode)) {
+        return this.$commonact.warning('请选择一个目录')
+      } else {
+        if (this.actNode.node_type === '01') {
           return this.$commonact.warning('菜单下不允许新增内容')
         }
-        this.actNode = selNodes[0]
         this.modal.folderModal = true
-      } else {
-        return this.$commonact.warning('请选择一个目录')
       }
     },
     showIconModal: function() {
       this.modal.iconModal = true
     },
-    iconChoose: function(currentRow, oldCurrentRow) {
+    iconChoose: function(currentRow) {
       this.workPara.systemmenu_icon = currentRow.iconSource
     },
     iconCancel: function() {
@@ -200,15 +204,13 @@ export default {
       this.workPara = {}
       this.action = 'add'
       this.$refs.formMenu.resetFields()
-      let selNodes = this.$refs.tree.getSelectedNodes()
-      if (selNodes.length > 0) {
-        if (selNodes[0].node_type === '01') {
+      if (_.isEmpty(this.actNode)) {
+        return this.$commonact.warning('请选择一个目录')
+      } else {
+        if (this.actNode.node_type === '01') {
           return this.$commonact.warning('菜单下不允许新增内容')
         }
-        this.actNode = selNodes[0]
         this.modal.menuModal = true
-      } else {
-        return this.$commonact.warning('请选择一个目录')
       }
     },
     submitMenu: function() {
@@ -235,27 +237,25 @@ export default {
     },
     editNode: async function() {
       try {
-        let selNodes = this.$refs.tree.getSelectedNodes()
-        if (selNodes.length > 0) {
-          this.actNode = selNodes[0]
-        } else {
+        if (_.isEmpty(this.actNode)) {
           return this.$commonact.warning('请选择一个节点')
         }
         this.action = 'modify'
-        if (selNodes[0].node_type === '00') {
+        if (this.actNode.node_type === '00') {
           this.workPara = {}
           this.$refs.formFolder.resetFields()
-          this.workPara.systemmenu_id = selNodes[0].systemmenu_id
-          this.workPara.systemmenu_name = selNodes[0].systemmenu_name
-          this.workPara.systemmenu_icon = selNodes[0].systemmenu_icon
+          this.workPara.systemmenu_id = this.actNode.systemmenu_id
+          this.workPara.systemmenu_name = this.actNode.systemmenu_name
+          this.workPara.systemmenu_icon = this.actNode.systemmenu_icon
           this.modal.folderModal = true
-        } else if (selNodes[0].node_type === '01') {
+        } else if (this.actNode.node_type === '01') {
           this.workPara = {}
           this.$refs.formMenu.resetFields()
-          this.workPara.systemmenu_id = selNodes[0].systemmenu_id
-          this.workPara.systemmenu_name = selNodes[0].systemmenu_name
-          this.workPara.auth_flag = selNodes[0].auth_flag
-          this.workPara.show_flag = selNodes[0].show_flag
+          this.workPara.systemmenu_id = this.actNode.systemmenu_id
+          this.workPara.systemmenu_name = this.actNode.systemmenu_name
+          this.workPara.api_path = this.actNode.api_path
+          this.workPara.auth_flag = this.actNode.auth_flag
+          this.workPara.show_flag = this.actNode.show_flag
           this.modal.menuModal = true
         }
       } catch (error) {

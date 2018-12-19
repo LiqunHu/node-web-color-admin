@@ -10,9 +10,12 @@
     "unit": "jest test/unit/specs --coverage",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",
-    "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
+    "lint": "eslint --ext .js,.vue src",
     "build": "node build/build.js"
   },
+  "pre-commit": [
+    "lint"
+  ],
   "dependencies": {
     "store": "^2.0.12",
     "lodash": "^4.17.11",
@@ -32,6 +35,7 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "pre-commit": "1.2.2",
     "autoprefixer": "^7.1.2",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
@@ -46,15 +50,17 @@
     "chalk": "^2.4.1",
     "copy-webpack-plugin": "^4.5.1",
     "css-loader": "^0.28.11",
-    "eslint": "^4.19.1",
+    "eslint": "^5.10.0",
     "eslint-friendly-formatter": "^4.0.1",
-    "eslint-loader": "^2.0.0",
+    "eslint-loader": "^2.1.1",
     "eslint-plugin-html": "^4.0.3",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "eslint-plugin-import": "^2.12.0",
-    "eslint-plugin-node": "^6.0.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-config-prettier": "^3.3.0",
     "eventsource-polyfill": "^0.9.6",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.11",

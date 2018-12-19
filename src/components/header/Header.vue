@@ -103,7 +103,6 @@ export default {
       this.$router.push({ path: '/extra/search' })
     },
     dropdownWork: function(name) {
-      console.log(33333)
       if (name === 'logout') {
         this.logout()
         this.$router.push({ path: '/' })

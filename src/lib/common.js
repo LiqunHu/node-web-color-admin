@@ -1,19 +1,6 @@
 import CryptoJS from 'crypto-js'
 import store from 'store'
 
-// window.Parsley
-//     .addValidator('phone', {
-//         requirementType: 'string',
-//         validateString: function(value, requirement) {
-//             if (!requirement) return requirement
-//             return /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)
-//         },
-//         messages: {
-//             en: 'input the mobile NO.',
-//             'zh-cn': '请输入正确的手机号码'
-//         }
-//     })
-
 exports.convertBase64StrToArray = function(base64Str) {
   let bytes = window.atob(base64Str) // 去掉url的头，并转换为byte
   // 处理异常,将ascii码小于0的转换为大于0
@@ -65,4 +52,98 @@ exports.getStoreData = getStoreData
 
 exports.removeStoreData = function(key) {
   store.remove(key)
+}
+
+exports.treeIconRender = (h, { root, node, data }, _self, treeRef, folderIcon, menuIcon) => {
+  if (node.node.node_type === '00') {
+    return h(
+      'span',
+      {
+        style: {
+          display: 'inline-block',
+          width: '100%'
+        }
+      },
+      [
+        h('span', [
+          h('Icon', {
+            props: {
+              type: folderIcon
+            },
+            style: {
+              marginRight: '8px'
+            }
+          }),
+          h(
+            'span',
+            {
+              style: {
+                color: '#666',
+                cursor: 'pointer'
+              },
+              domProps: {
+                className: 'treenode'
+              },
+              on: {
+                click: e => {
+                  let nodes = treeRef.$el.querySelectorAll('.treenode')
+                  for (let i = 0; i < nodes.length; i++) {
+                    nodes[i].style.backgroundColor = '#fff'
+                  }
+                  e.path[0].style.backgroundColor = '#2d8cf0' // 当前点击的元素
+                  _self.actNode = JSON.parse(JSON.stringify(node.node))
+                }
+              }
+            },
+            data.title
+          )
+        ])
+      ]
+    )
+  } else if (node.node.node_type === '01') {
+    return h(
+      'span',
+      {
+        style: {
+          display: 'inline-block',
+          width: '100%'
+        }
+      },
+      [
+        h('span', [
+          h('Icon', {
+            props: {
+              type: menuIcon
+            },
+            style: {
+              marginRight: '8px'
+            }
+          }),
+          h(
+            'span',
+            {
+              style: {
+                color: '#666',
+                cursor: 'pointer'
+              },
+              domProps: {
+                className: 'treenode'
+              },
+              on: {
+                click: e => {
+                  let nodes = treeRef.$el.querySelectorAll('.treenode')
+                  for (let i = 0; i < nodes.length; i++) {
+                    nodes[i].style.backgroundColor = '#fff'
+                  }
+                  e.path[0].style.backgroundColor = '#2d8cf0' // 当前点击的元素
+                  _self.actNode = JSON.parse(JSON.stringify(node.node))
+                }
+              }
+            },
+            data.title
+          )
+        ])
+      ]
+    )
+  }
 }
