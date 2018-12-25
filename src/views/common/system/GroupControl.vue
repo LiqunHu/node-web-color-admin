@@ -36,6 +36,9 @@
     </Modal>
     <Modal v-model="modal.permissionModal" title="角色">
       <Form :model="workPara" :label-width="80" :rules="formRule.rulePermissionModal" ref="formPermission">
+        <FormItem label="角色代码" prop="usergroup_code">
+          <Input placeholder="角色代码" v-model="workPara.usergroup_code" :disabled="action === 'modify'"/>
+        </FormItem>
         <FormItem label="角色名称" prop="usergroup_name">
           <Input placeholder="角色名称" v-model="workPara.usergroup_name"/>
         </FormItem>
@@ -67,6 +70,7 @@ export default {
           usergroup_name: [{ required: true, trigger: 'change' }]
         },
         rulePermissionModal: {
+          usergroup_code: [{ required: true, trigger: 'change' }],
           usergroup_name: [{ required: true, trigger: 'change' }]
         }
       },
@@ -223,11 +227,13 @@ export default {
               await this.$http.post(apiUrl + 'add', this.workPara)
               this.$Message.success('增加角色成功')
             } else if (this.action === 'modify') {
+              delete this.workPara.usergroup_code
               await this.$http.post(apiUrl + 'modify', this.workPara)
               this.$Message.success('修改角色成功')
             }
 
             this.getTreeData()
+            this.actNode = []
             this.modal.permissionModal = false
           } catch (error) {
             this.$commonact.fault(error)
@@ -276,6 +282,7 @@ export default {
           this.modal.groupModal = true
         } else if (this.actNode.node_type === '01') {
           this.$refs.formPermission.resetFields()
+          this.workPara.usergroup_code = this.actNode.usergroup_code
           this.workPara.usergroup_name = this.actNode.name
           await getCheckData(this.actNode)
           this.modal.permissionModal = true

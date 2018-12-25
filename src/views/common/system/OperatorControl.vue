@@ -9,7 +9,7 @@
     <!-- end breadcrumb -->
     <!-- begin page-header -->
     <h1 class="page-header">
-      员工维护
+      用户维护
       <small></small>
     </h1>
     <!-- end page-header -->
@@ -26,7 +26,7 @@
               </div>
             </div>
             <div class="form-group m-r-10">
-              <button type="button" class="btn btn-info" @click="addUserModal">增加员工</button>
+              <button type="button" class="btn btn-info" @click="addUserModal">增加用户</button>
             </div>
           </div>
         </div>
@@ -48,7 +48,7 @@
       </Table>
       <Page class="m-t-10" :total="table.userTable.total" :page-size="table.userTable.limit" @on-change="getUserData"/>
     </panel>
-    <Modal v-model="modal.userModal" title="员工维护">
+    <Modal v-model="modal.userModal" title="用户维护">
       <Form :model="workPara" :label-width="80" :rules="formRule.ruleUserModal" ref="formUser">
         <FormItem label="用户名" prop="user_username">
           <Input placeholder="用户名" v-model="workPara.user_username" :disabled="action === 'modify'"/>

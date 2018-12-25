@@ -35,19 +35,15 @@
         <li class="dropdown navbar-user">
           <Dropdown trigger="click" class="dropdown-menu-right" @on-click="dropdownWork">
             <a class="btn btn-link dropdown-toggle">
-              <div class="image image-icon bg-black text-grey-darker">
+              <!-- <div class="image image-icon bg-black text-grey-darker">
                 <i class="fa fa-user"></i>
-              </div>
+              </div> -->
+              <img :src="userInfo.avatar" alt>
               <span class="d-none d-md-inline">{{userInfo.name}}</span>
               <b class="caret"></b>
             </a>
             <DropdownMenu slot="list" style="min-width: 10rem;">
-              <DropdownItem>Edit Profile</DropdownItem>
-              <DropdownItem>
-                <span class="badge badge-danger pull-right">2</span> Inbox
-              </DropdownItem>
-              <DropdownItem>Calendar</DropdownItem>
-              <DropdownItem>Setting</DropdownItem>
+              <DropdownItem name="profile">Edit Profile</DropdownItem>
               <DropdownItem divided name="logout">Log Out</DropdownItem>
             </DropdownMenu>
           </Dropdown>
@@ -104,8 +100,11 @@ export default {
     },
     dropdownWork: function(name) {
       if (name === 'logout') {
+        this.$http.post('/v1/api/auth/signout', {})
         this.logout()
         this.$router.push({ path: '/' })
+      } else if (name === 'profile') {
+        this.$router.push({ path: '/common/system/UserProfile' })
       }
     }
   }

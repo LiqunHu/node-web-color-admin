@@ -68,16 +68,15 @@ export default {
       let _self = this
       let encInfo = common.aesEncryptModeCFB(this.username, this.password)
       _self.$http
-        .post('/v1/api/auth', {
+        .post('/v1/api/auth/signin', {
           username: this.username,
           identify_code: encInfo[1],
           magic_no: encInfo[0],
           login_type: 'WEB'
         })
         .then(function(response) {
-          let token = response.headers.authorization
-          if (token) {
-            let userinfo = response.data.info
+          let userinfo = response.data.info
+          if (userinfo.Authorization) {
             if (!userinfo.avatar) {
               userinfo.avatar = '/static/images/base/head.jpg'
             }
