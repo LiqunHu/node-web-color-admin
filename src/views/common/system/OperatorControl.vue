@@ -32,16 +32,16 @@
         </div>
       </template>
       <Table stripe ref="userTable" :columns="table.userTable.rows" :data="table.userTable.data">
-        <template slot="groups" slot-scope="props">
-          <Select multiple v-model="props.user_groups" disabled>
+        <template slot-scope="{ row, index }" slot="user_groups">
+          <Select multiple v-model="row.user_groups" disabled>
             <Option v-for="item in pagePara.groupInfo" :value="item.id" :key="item.id">{{ item.text }}</Option>
           </Select>
         </template>
-        <template slot="action" slot-scope="actrow">
-          <a href="#" class="btn btn-info btn-icon btn-sm" @click="modifyUserModal(actrow.row)">
+        <template slot-scope="{ row, index }" slot="action">
+          <a href="#" class="btn btn-info btn-icon btn-sm" @click="modifyUserModal(row)">
             <i class="fa fa-edit"></i>
           </a>
-          <a href="#" class="btn btn-danger btn-icon btn-sm" @click="deleteUser(actrow.row)">
+          <a href="#" class="btn btn-danger btn-icon btn-sm" @click="deleteUser(row)">
             <i class="fa fa-times"></i>
           </a>
         </template>
@@ -110,16 +110,11 @@ export default {
             },
             {
               title: '用户组',
-              key: 'user_groups',
-              render: (h, params) => {
-                return h('div', this.$refs.userTable.$scopedSlots.groups({ user_groups: params.row.user_groups }))
-              }
+              slot: 'user_groups'
             },
             {
               title: '操作',
-              render: (h, params) => {
-                return h('div', this.$refs.userTable.$scopedSlots.action({ row: params.row }))
-              }
+              slot: 'action'
             }
           ],
           data: [],
